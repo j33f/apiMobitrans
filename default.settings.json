@@ -1,0 +1,10 @@
+{
+	"operators": [
+		"tam",
+		"tag",
+		"citura",
+		"tao"
+	],
+	"secret": "MySecret",
+	"port": 1337
+}
