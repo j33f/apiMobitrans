@@ -34,11 +34,9 @@ Here is the default one :
 		"port": 1337
 	}
 
-`operators` is an array of strings listing all the operators names to use
-
-`secret` is a string used to create a special URL for the first scrap
-
-`port` is an integer determining the port on wich the server will listen.
+* `operators` is an array of strings listing all the operators names to use
+* `secret` is a string used to create a special URL for the first scrap
+* `port` is an integer determining the port on wich the server will listen.
 
 If you want your own configuration, just edit this file or create a new one with a new name like «production.settings.json».
 To specify to the app the settings file you want to use, use the environment variables like `SETTINGS=production node app.js`
@@ -62,21 +60,21 @@ Usage
 
 The API is a rest API wich serve XML or JSON formatted datas dependng on extension or http header «Accept» (first has precedence). By default (ie without specifying an extension, JSON will be served)
 
-`/scrap/MySecret` : perform the very first scrap, to list lines, stop, junctions for all operators
-`/viewStorage/MySecret{.json|.xml}` : url to call to have a look to the whole storage
-`/:operator/getLines{.json|.xml}` : get all infos for all lines
-`/:operator/getLine/:line{.json|.xml}` : get all infos for a line
-`/:operator/getStops{.json|.xml}` : get all infos for all stops
-`/:operator/getStop/:stop{.json|.xml}` : get all infos for a stop
-`/:operator/getArrivals/:stop/:line{.json|.xml}` : get the arrivals for a stop on a line
-`/:operator/getArrivals/:stop{.json|.xml}` : get all the arrivals for a stop from all lines
-`/:operator/getArrivalsAtStop{.json|.xml}` : // same as above
-`/:operator/getArrivalsAtLine/:line/forStop/:stop{.json|.xml}` : same as above
-`/:operator/getArrivalsAtStop/:stop.{.json|.xml}` : get all arrvivals at a stop from all lines
+* `/scrap/MySecret` : perform the very first scrap, to list lines, stop, junctions for all operators
+* `/viewStorage/MySecret{.json|.xml}` : url to call to have a look to the whole storage
+* `/:operator/getLines{.json|.xml}` : get all infos for all lines
+* `/:operator/getLine/:line{.json|.xml}` : get all infos for a line
+* `/:operator/getStops{.json|.xml}` : get all infos for all stops
+* `/:operator/getStop/:stop{.json|.xml}` : get all infos for a stop
+* `/:operator/getArrivals/:stop/:line{.json|.xml}` : get the arrivals for a stop on a line
+* `/:operator/getArrivals/:stop{.json|.xml}` : get all the arrivals for a stop from all lines
+* `/:operator/getArrivalsAtStop{.json|.xml}` : // same as above
+* `/:operator/getArrivalsAtLine/:line/forStop/:stop{.json|.xml}` : same as above
+* `/:operator/getArrivalsAtStop/:stop.{.json|.xml}` : get all arrvivals at a stop from all lines
 
-`:operator` must be one of the listed operators in the settings file
+Where : 
 
-`:line` must be a line id
-
-`:stop` must be a stop id
+* `:operator` must be one of the listed operators in the settings file
+* `:line` must be a line id
+* `:stop` must be a stop id
 
