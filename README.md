@@ -22,16 +22,16 @@ Configuration
 All the default settings are in the default.settings.json file.
 
 Here is the default one : 
-`{
-	"operators": [
-		"tam",
-		"tag",
-		"citura",
-		"tao"
-	],
-	"secret": "MySecret",
-	"port": 1337
-}`
+	{
+		"operators": [
+			"tam",
+			"tag",
+			"citura",
+			"tao"
+		],
+		"secret": "MySecret",
+		"port": 1337
+	}
 
 `operators` is an array of strings listing all the operators names to use
 `secret` is a string used to create a special URL for the first scrap
