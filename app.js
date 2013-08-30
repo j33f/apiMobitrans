@@ -85,6 +85,8 @@ app.configure(function(){
   app.param('operator', function(req, res, next, id) {
     if (storage[id]) {
       req.operator = storage[id];
+      // since operator is mandatory, we can safely add all global things in here
+      req.settings = settings;
       next();
     } else {
       var message = 'The operator \''+id+'\' does not exists. Here is a list of valid operators IDs.';
@@ -112,7 +114,6 @@ app.configure(function(){
   app.param('line', function(req, res, next, id) {
     if (storage[req.params.operator].lines[id]) {
       if (req.params.stop) {
-        console.log('a stop is specified.')
         // if a stop is also specified, check if the stop is on this line
         if (!Object.keys(storage[req.params.operator].stops[req.params.stop].lines).indexOf(id)) {
           next();

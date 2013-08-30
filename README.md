@@ -8,8 +8,8 @@ Installation
 
 ### Prerequisites
 
-You will need to have nodeJs and npm installed.
-Under any debian-like simply do `sudo apt-get install nodejs npm` in a terminal console
+You will need to have nodeJs, npm (the nodeJs packet manager) and [redis](http://redis.io/) installed.
+Under any debian-like simply do `sudo apt-get install nodejs npm redis-server` in a terminal console
 
 ### Quick start
 
@@ -36,12 +36,18 @@ Here is the default one :
 			"tao"
 		],
 		"secret": "MySecret",
-		"port": 1337
+		"port": 1337,
+		"redis": {
+			"host": "127.0.0.1",
+			"port": 6379,
+			"password": null
+		}
 	}
 
 * `operators` is an array of strings listing all the operators names to use
 * `secret` is a string used to create a special URL for the first scrap
 * `port` is an integer determining the port on wich the server will listen.
+* `redis` is an object of parameters to configure the redis client
 
 If you want your own configuration, just edit this file or create a new one with a new name like «production.settings.json».
 To specify to the app the settings file you want to use, use the environment variables like `SETTINGS=production node app.js`

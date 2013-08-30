@@ -14,7 +14,8 @@
     "less-middleware": "*",
     "cheerio": "*",
     "slugg": "*",
-    "easyxml": "*"
+    "easyxml": "*",
+    "redis": "*"
   },
   "subdomain": "apiMobitrans",
   "engines": {

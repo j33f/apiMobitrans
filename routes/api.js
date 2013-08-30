@@ -21,7 +21,16 @@ var http = require('http')
   , events = new eventsMaster.EventEmitter()
   , cheerio = require('cheerio')
   , slug = require('slugg')
+  , Redis = require('redis')
+  , redis = null
 ;
+
+var redisConnect = function(settings) {
+	if (redis == null) {
+		redis = Redis.createClient(settings.redis.port, settings.redis.host, {auth_path: settings.redis.password});
+	}
+	return redis;
+}
 
 var stripTags = function(str) {
 	return str.replace(/<\/?([a-z][a-z0-9]*)\b[^>]*>/gi,'').replace(/<!--[\s\S]*?-->/gi,'');
@@ -186,32 +195,50 @@ exports.getStops = function(req, res) {
 };
 
 exports.getArrivalsForStopLine = function(req, res) {
-	events.on('arrivals', function(data, line) {
-		res.sendData(data);
+	redisConnect(req.settings);
+	var key = slug('arrivals_' + req.operator + '_' + req.params.stop + '_' + req.params.line);
+	// test if the datas are stored, if not, scrap them and store them temporarily
+	redis.get(key,function(err,response){
+		if (response) {
+			res.sendData(JSON.parse(response));
+		} else {
+			events.on('arrivals', function(data, line) {
+				redis.setex(key,30,JSON.stringify(data));
+				res.sendData(data);
+			});
+			getArrivals(req.operator, req.params.stop, req.params.line);
+		}
 	});
-	getArrivals(req.operator, req.params.stop, req.params.line);
-
 };
 
 exports.getArrivalsAtStop = function(req, res) {
-	var lines = req.operator.stops[req.params.stop].lines;
-	var arrivals = {};
+	redisConnect(req.settings);
+	var key = slug('arrivals_' + req.operator + '_' + req.params.stop);
+	// test if the datas are stored, if not, scrap them and store them temporarily
+	redis.get(key,function(err,response){
+		if (response) {
+			res.sendData(JSON.parse(response));
+		} else {
+			var lines = req.operator.stops[req.params.stop].lines;
+			var arrivals = {};
+			events.on('arrivals', function(data, line) {
+				arrivals[line] = {
+					line: {
+						name: req.operator.lines[line].name
+						, id: line
+					}
+					, arrivals: data
+				};
+				
+				if (Object.keys(arrivals).length == Object.keys(lines).length) {
+					redis.setex(key,30,JSON.stringify(arrivals));
+					res.sendData(arrivals);
+				}
+			});
 
-	events.on('arrivals', function(data, line) {
-		arrivals[line] = {
-			line: {
-				name: req.operator.lines[line].name
-				, id: line
+			for (var line in lines) {
+				getArrivals(req.operator, req.params.stop, line);
 			}
-			, arrivals: data
-		};
-		
-		if (Object.keys(arrivals).length == Object.keys(lines).length) {
-			res.sendData(arrivals);
 		}
 	});
-
-	for (var line in lines) {
-		getArrivals(req.operator, req.params.stop, line);
-	}
 };
