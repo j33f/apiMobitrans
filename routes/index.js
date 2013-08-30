@@ -17,10 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
 
-/*
- * GET home page.
- */
-
 exports.index = function(req, res){
-  res.render('index', { title: 'Express' });
+	res.redirect(301, 'https://github.com/Modulaweb/apiMobitrans');
 };
