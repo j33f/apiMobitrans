@@ -11,10 +11,15 @@ Installation
 You will need to have nodeJs and npm installed.
 Under any debian-like simply do `sudo apt-get install nodejs npm` in a terminal console
 
+### Quick start
+
 1. Clone the project
 2. In a terminal console, go to the project's directory then run `npm install` to install the project's dependencies
 3. Run the API server with the default  by typing `node app.js` in a terminal console
 4. Open the following URL in a browser : http://127.0.0.1:1337/scrap/MySecret (if you are using it on your own machine)
+5. Restart the server ([Ctrl]+[C] then `node app.js`)
+
+During the first scrap, a «storage.json» file is created to store the datas.
 
 Configuration
 -------------
