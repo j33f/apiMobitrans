@@ -88,8 +88,3 @@ Where :
 * `:operator` must be one of the listed operators in the settings file
 * `:line` must be a line id
 * `:stop` must be a stop id
-
-Demo
-----
-
-You can have a live demo here : http://apimobitrans.modulaweb.fr/tam/getStops.xml
