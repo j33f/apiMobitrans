@@ -27,7 +27,8 @@ var http = require('http')
 
 var redisConnect = function(settings) {
 	if (redis == null) {
-		redis = Redis.createClient(settings.redis.port, settings.redis.host, {auth_path: settings.redis.password});
+		redis = Redis.createClient(settings.redis.port, settings.redis.host);
+		redis.auth(settings.redis.password, function (err) { if (err) throw err; });
 	}
 	return redis;
 }
