@@ -24,6 +24,7 @@ var express = require('express')
   , path = require('path')
   , easyxml = require('easyxml')
   , fs = require('fs')
+  , Hogan = require('hogan.js')
 ;
 
 easyxml.configure({
@@ -56,6 +57,8 @@ app.configure(function(){
   app.use(express.compress());
   app.use(express.methodOverride());
   app.use(express.bodyParser());
+  app.use(require('less-middleware')({ src: __dirname + '/static' }));
+  app.use('/static', express.static(__dirname + '/static'));
   app.use(function(req, res, next) {
     // content negociation handler
     res.sendData = function(obj,status_) {
@@ -68,6 +71,22 @@ app.configure(function(){
           res.header('Content-Type', 'text/xml');
           var xml = easyxml.render(obj);
           res.type('xml').send(status,xml);
+        } else if ( req.params.ext == 'html') {
+          var content = {
+            operator: req.operator.name
+            , data: obj
+          };
+          if (req.params.line) {
+            content['lineName'] = req.operator.lines[req.params.line].name;
+            content['lineId'] = req.params.line;
+          }
+          if (req.params.stop) {
+            content['stopName'] = req.operator.stops[req.params.stop].name;
+            content['stopId'] = req.params.stop;
+          }
+          var template = Hogan.compile(fs.readFileSync(__dirname + '/views/'+req.verb+'.hjs',{encoding:'utf8'}));
+          var html = template.render(content);
+          res.render('main', {content: html});
         } else {
           res.send(406,'You must set http header «Accepts» to «application/json» or «application/xml» or just put the .json or .xml extension at the end of the URL.');
         }
@@ -77,7 +96,7 @@ app.configure(function(){
   });
   app.use(app.router);
   app.use(require('less-middleware')({ src: __dirname + '/public' }));
-  app.use(express.static(path.join(__dirname, 'public')));
+  app.use(express.static(path.join(__dirname, 'static')));
   app.set('settings', settings);
   if (storage) app.set('storage', storage);
 
@@ -87,6 +106,8 @@ app.configure(function(){
       req.operator = storage[id];
       // since operator is mandatory, we can safely add all global things in here
       req.settings = settings;
+      var match = req.path.match(/^\/[^\/]*\/([^\/\.]*)[\/\.]?/);
+      req.verb = match[1];
       next();
     } else {
       var message = 'The operator \''+id+'\' does not exists. Here is a list of valid operators IDs.';

@@ -1,0 +1,14 @@
+<h1>Stop «{{stopName}}» from operator «{{operator}}»</h1>
+<hr>
+	<a class="btn btn-primary btn-xs" href="./{{stopId}}.json">JSON version</a> 
+	<a class="btn btn-primary btn-xs" href="./{{stopId}}.xml">XML version</a> 
+	<a class="btn btn-success btn-xs" href="../getArrivals/{{stopId}}.html">View arrivals</a>
+
+{{#data}}
+{{#stop}}
+  <h3>Connections</h3>
+  {{#connections}}
+  	<a class="btn btn-default btn-xs" href="../getLine/{{id}}.html">Line «{{name}}»</a> 
+  {{/connections}}
+{{/stop}}
+{{/data}}

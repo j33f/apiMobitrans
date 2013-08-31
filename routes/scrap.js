@@ -116,8 +116,8 @@ Operator.prototype = {
               thisOperator.linesCount = $('select[name="ligne"] option').length;
               $('select[name="ligne"] option').each(function(i,element){
                 var line = {
-                  id: element.attribs.value
-                  , name: element.children[0].data
+                  id: element.attribs.value.trim()
+                  , name: element.children[0].data.trim()
                   , stops: []
                 };
                 thisOperator.linesTemp[line.id] = line;
@@ -222,7 +222,7 @@ Operator.prototype = {
       var line = thisOperator.linesTemp[l];
 
       thisOperator.lines['line_' + slug(line.id)] = {
-        id: slug(line.id)
+        id: 'line_' + slug(line.id)
         , name: line.name
         , stops: {}
       };

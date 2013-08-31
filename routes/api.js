@@ -39,7 +39,6 @@ var stripTags = function(str) {
 
 var parseArrivals = function(toBeParsed) {
 	$ = cheerio.load(toBeParsed);
-	//console.log(toBeParsed);
 	
 	// test if there is the «no information at this time» message on the page
 	if ($('div.corpsL').find('span.white').length > 0) {
@@ -158,44 +157,90 @@ var getArrivals = function(operator, stop, line) {
     ;
 }
 
-exports.getLines = function(req, res) {
+var getLines = function(req, res) {
 	if (req.params.line) {
-		var response = req.operator.lines[req.params.line];
-	} else {
-		var response = req.operator.lines;
-		console.log(response);
+		var rawResponse = JSON.parse(JSON.stringify(req.operator.lines[req.params.line])); // clone object
+		var response = {
+			id: rawResponse.id
+			, name: rawResponse.name
+			, stops: []
+		};
 		// cleanup
-		for (var i in response) {
-			for (var s in response[i].stops) {
-				for (var l in response[i].stops[s].lines) {
-					delete response[i].stops[s].lines[l].url;
+		for (var s in rawResponse.stops) {
+			var stop = rawResponse.stops[s];
+			var connections = [];
+			for (var l in rawResponse.stops[s].lines) {
+				if (rawResponse.stops[s].lines[l].id != req.params.line) {
+					delete rawResponse.stops[s].lines[l].url;
+					connections.push(rawResponse.stops[s].lines[l]);
 				}
 			}
+			stop.connections = connections;
+			delete stop.lines;
+			response.stops.push(stop);
 		}
-	}
-	res.sendData(response);
-};
-
-exports.getStops = function(req, res) {
-	if (req.params.stop) {
-		var response = req.operator.stops[req.params.stop];
-		// cleanup
-		for (var l in response.lines) {
-			delete response.lines[l].url;
-		}
+		response = {line: response};
 	} else {
-		var response = req.operator.stops;
+		var rawResponse = JSON.parse(JSON.stringify(req.operator.lines)); // clone object
+		var response = [];
 		// cleanup
-		for (var s in response) {
-			for (var l in response[s].lines) {
-				delete response[s].lines[l].url
+		for (var i in rawResponse) {
+			var stops = [];
+			for (var s in rawResponse[i].stops) {
+				var stop = rawResponse[i].stops[s];
+				var connections = [];
+				for (var l in rawResponse[i].stops[s].lines) {
+					if (rawResponse[i].stops[s].lines[l].id != rawResponse[i].id) {
+						delete rawResponse[i].stops[s].lines[l].url;
+						connections.push(rawResponse[i].stops[s].lines[l]);
+					}
+				}
+				stop.connections = connections;
+				delete stop.lines;
+				stops.push(stop);
 			}
+			rawResponse[i].stops = stops;
+			response.push(rawResponse[i]);
 		}
+		response = {lines:response};
 	}
 	res.sendData(response);
 };
 
-exports.getArrivalsForStopLine = function(req, res) {
+var getStops = function(req, res) {
+	if (req.params.stop) {
+		var rawResponse = JSON.parse(JSON.stringify(req.operator.stops[req.params.stop])); // clone object
+
+		var response = {
+			id: rawResponse.id
+			, name: rawResponse.name
+			, connections: []
+		};
+		// cleanup
+		for (var l in rawResponse.lines) {
+			delete rawResponse.lines[l].url;
+			response.connections.push(rawResponse.lines[l]);
+		}
+		response = {stop:response};
+	} else {
+		var rawResponse = JSON.parse(JSON.stringify(req.operator.stops)); // clone object
+		var response = [];
+		// cleanup
+		for (var s in rawResponse) {
+			var lines = [];
+			for (var l in rawResponse[s].lines) {
+				delete rawResponse[s].lines[l].url
+				lines.push(rawResponse[s].lines[l]);
+			}
+			rawResponse[s].lines = lines;
+			response.push(rawResponse[s]);
+		}
+		response = {stops:response};
+	}
+	res.sendData(response);
+};
+
+var getArrivalsForStopLine = function(req, res) {
 	redisConnect(req.settings);
 	var key = slug('arrivals_' + req.operator + '_' + req.params.stop + '_' + req.params.line);
 	// test if the datas are stored, if not, scrap them and store them temporarily
@@ -212,7 +257,7 @@ exports.getArrivalsForStopLine = function(req, res) {
 	});
 };
 
-exports.getArrivalsAtStop = function(req, res) {
+var getArrivalsAtStop = function(req, res) {
 	redisConnect(req.settings);
 	var key = slug('arrivals_' + req.operator + '_' + req.params.stop);
 	// test if the datas are stored, if not, scrap them and store them temporarily
@@ -243,3 +288,9 @@ exports.getArrivalsAtStop = function(req, res) {
 		}
 	});
 };
+
+exports.getLines = getLines;
+exports.getStops = getStops;
+exports.getArrivals = getArrivals;
+exports.getArrivalsAtStop = getArrivalsAtStop;
+exports.getArrivalsForStopLine = getArrivalsForStopLine;
