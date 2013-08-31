@@ -15,7 +15,8 @@
     "cheerio": "*",
     "slugg": "*",
     "easyxml": "*",
-    "redis": "*"
+    "redis": "*",
+    "hogan.js": "*"
   },
   "subdomain": "apiMobitrans",
   "engines": {
