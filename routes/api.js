@@ -37,6 +37,14 @@ var stripTags = function(str) {
 	return str.replace(/<\/?([a-z][a-z0-9]*)\b[^>]*>/gi,'').replace(/<!--[\s\S]*?-->/gi,'');
 }
 
+var objectToArray = function(obj) {
+	var arr =[];
+	for ( var i in obj ) {
+	    arr.push(obj[i]);
+	}
+	return arr;
+}
+
 var parseArrivals = function(toBeParsed) {
 	$ = cheerio.load(toBeParsed);
 	
@@ -159,83 +167,64 @@ var getArrivals = function(operator, stop, line) {
 
 var getLines = function(req, res) {
 	if (req.params.line) {
-		var rawResponse = JSON.parse(JSON.stringify(req.operator.lines[req.params.line])); // clone object
-		var response = {
-			id: rawResponse.id
-			, name: rawResponse.name
-			, stops: []
-		};
-		// cleanup
-		for (var s in rawResponse.stops) {
-			var stop = rawResponse.stops[s];
-			var connections = [];
-			for (var l in rawResponse.stops[s].lines) {
-				if (rawResponse.stops[s].lines[l].id != req.params.line) {
-					delete rawResponse.stops[s].lines[l].url;
-					connections.push(rawResponse.stops[s].lines[l]);
-				}
+		// One line requested
+		//cleanup and reformat data
+		var thisLine = JSON.parse(JSON.stringify(req.operator.lines[req.params.line])); // clone object
+		for (var s in thisLine.stops) {
+			console.log(s);
+			for (var l in thisLine.stops[s].lines) {
+				delete thisLine.stops[s].lines[l].url
 			}
-			stop.connections = connections;
-			delete stop.lines;
-			response.stops.push(stop);
+			// create an array with a cloned object
+			thisLine.stops[s].connections = objectToArray(JSON.parse(JSON.stringify(thisLine.stops[s].lines)));
+			delete thisLine.stops[s].lines;
 		}
-		response = {line: response};
+		thisLine.stops = objectToArray(thisLine.stops);
+		var response = {line: thisLine};
 	} else {
-		var rawResponse = JSON.parse(JSON.stringify(req.operator.lines)); // clone object
-		var response = [];
-		// cleanup
-		for (var i in rawResponse) {
-			var stops = [];
-			for (var s in rawResponse[i].stops) {
-				var stop = rawResponse[i].stops[s];
-				var connections = [];
-				for (var l in rawResponse[i].stops[s].lines) {
-					if (rawResponse[i].stops[s].lines[l].id != rawResponse[i].id) {
-						delete rawResponse[i].stops[s].lines[l].url;
-						connections.push(rawResponse[i].stops[s].lines[l]);
-					}
+		// All lines requested
+		var thoseLines = JSON.parse(JSON.stringify(req.operator.lines)); // clone object
+		for (var i in thoseLines) {
+			for (var s in thoseLines[i].stops) {
+				console.log(s);
+				for (var l in thoseLines[i].stops[s].lines) {
+					delete thoseLines[i].stops[s].lines[l].url
 				}
-				stop.connections = connections;
-				delete stop.lines;
-				stops.push(stop);
+				// create an array with a cloned object
+				thoseLines[i].stops[s].connections = objectToArray(JSON.parse(JSON.stringify(thoseLines[i].stops[s].lines)));
+				delete thoseLines[i].stops[s].lines;
 			}
-			rawResponse[i].stops = stops;
-			response.push(rawResponse[i]);
+			thoseLines[i].stops = objectToArray(thoseLines[i].stops);
 		}
-		response = {lines:response};
+		thoseLines = objectToArray(thoseLines);
+		var response = {lines: thoseLines};
 	}
+
 	res.sendData(response);
 };
 
 var getStops = function(req, res) {
 	if (req.params.stop) {
-		var rawResponse = JSON.parse(JSON.stringify(req.operator.stops[req.params.stop])); // clone object
-
-		var response = {
-			id: rawResponse.id
-			, name: rawResponse.name
-			, connections: []
-		};
-		// cleanup
-		for (var l in rawResponse.lines) {
-			delete rawResponse.lines[l].url;
-			response.connections.push(rawResponse.lines[l]);
+		var thisStop = JSON.parse(JSON.stringify(req.operator.stops[req.params.stop])); // clone object
+		for (var l in thisStop.lines) {
+			delete thisStop.lines[l].url;
 		}
-		response = {stop:response};
+		// create an array with a cloned object
+		thisStop.connections = objectToArray(JSON.parse(JSON.stringify(thisStop.lines)));
+		delete thisStop.lines;
+		var response = {stop: thisStop};
 	} else {
-		var rawResponse = JSON.parse(JSON.stringify(req.operator.stops)); // clone object
-		var response = [];
-		// cleanup
-		for (var s in rawResponse) {
-			var lines = [];
-			for (var l in rawResponse[s].lines) {
-				delete rawResponse[s].lines[l].url
-				lines.push(rawResponse[s].lines[l]);
+		var thoseStops = JSON.parse(JSON.stringify(req.operator.stops)); // clone object
+		for (var i in thoseStops) {
+			for (var l in thoseStops[i].lines) {
+				delete thoseStops[i].lines[l].url;
 			}
-			rawResponse[s].lines = lines;
-			response.push(rawResponse[s]);
+			// create an array with a cloned object
+			thoseStops[i].connections = objectToArray(JSON.parse(JSON.stringify(thoseStops[i].lines)));
+			delete thoseStops[i].lines;
 		}
-		response = {stops:response};
+		thoseStops = objectToArray(thoseStops);
+		var response = {stops: thoseStops};
 	}
 	res.sendData(response);
 };

@@ -115,16 +115,22 @@ Operator.prototype = {
               $ = cheerio.load(body);
               thisOperator.linesCount = $('select[name="ligne"] option').length;
               $('select[name="ligne"] option').each(function(i,element){
-                var line = {
-                  id: element.attribs.value.trim()
-                  , name: element.children[0].data.trim()
-                  , stops: []
-                };
-                thisOperator.linesTemp[line.id] = line;
-                console.log('\t' + thisOperator.name + ' : line «' + line.name + '» (id: ' + line.id + ') discovered.');
-                if (Object.keys(thisOperator.linesTemp).length == thisOperator.linesCount) {
-                  console.log(thisOperator.name + ' : ' + thisOperator.linesCount + ' lines listed.\n');
-                  thisOperator.getStopsLinks();
+                if (element.children[0]) {
+                  var line = {
+                    id: element.attribs.value.trim()
+                    , name: element.children[0].data.trim()
+                    , stops: []
+                  };
+                  thisOperator.linesTemp[line.id] = line;
+                  console.log('\t' + thisOperator.name + ' : line «' + line.name + '» (id: ' + line.id + ') discovered.');
+                  if (Object.keys(thisOperator.linesTemp).length == thisOperator.linesCount) {
+                    console.log(thisOperator.name + ' : ' + thisOperator.linesCount + ' lines listed.\n');
+                    thisOperator.getStopsLinks();
+                  }
+                } else {
+                  // lines without names are not interesting
+                  // they are not public
+                  thisOperator.linesCount--
                 }
               });
             })
@@ -191,11 +197,19 @@ Operator.prototype = {
 
                 var stopsScraped = 0;
                 $('a.white').each(function(iterator, element) {
-                  var stopName = $(this).text().replace(/( T[1234])$/,'');
-                  thisOperator.linesTemp[lineId].stops.push({
-                    name: stopName
-                    , url: $(this).attr('href')
-                  });
+                  var stopName = $(this).text().replace(/( T[1234])$/,'').trim();
+                  var stopId = 'stop_' + slug(stopName.toLowerCase());
+                  if (stopName != '..') {
+                    // add the stop only if it exists
+                    // some «fake» stops are on the lists, those stops are for operator use
+                    // like drivers training or temporarily use
+                    // todo : list all fake stops from all operators
+                    thisOperator.linesTemp[lineId].stops.push({
+                      name: stopName
+                      , id: stopId
+                      , url: $(this).attr('href')
+                    });
+                  }
                   stopsScraped++;
                   if (stopsScraped == stopsCount)
                     thisOperator.linesScrapped++;
@@ -232,42 +246,40 @@ Operator.prototype = {
 
         var query = qs.parse(stop.url);
 
-        var stopSlug = 'stop_' + slug(stop.name.trim().toLowerCase())
+        var stopId = stop.id;
 
-        if (stop.name!='..') {
-          // if the stop really exists…
-          if (thisOperator.stops[stopSlug]) {
-            // the stops has already been seen, its a junction between two lines
-            thisOperator.stops[stopSlug].lines['line_' + slug(line.id)] = {
-              id: 'line_' + slug(line.id)
-              , name: line.name
-              , url: {
-                p: 49
-                , id: query.id
-                , rd: query.rd
-              }
-            };
-          } else {
-            // first time this stop is seen, create it
-            var stopToStore = {
-              name: stop.name
-              , id: stopSlug
-              , lines: {}
+        if (thisOperator.stops[stopId]) {
+          // the stops has already been seen, its a junction between two lines
+          thisOperator.stops[stop.id].lines['line_' + slug(line.id)] = {
+            id: 'line_' + slug(line.id)
+            , name: line.name
+            , url: {
+              p: 49
+              , id: query.id
+              , rd: query.rd
             }
-            // add the line to this stop
-            stopToStore.lines['line_' + slug(line.id)] = {
-              id: 'line_' + slug(line.id)
-              , name: line.name
-              , url: {
-                p: 49
-                , id: query.id
-                , rd: query.rd
-              }
-            };
+          };
+          thisOperator.lines['line_' + slug(line.id)].stops[stop.id] = thisOperator.stops[stop.id];
+        } else {
+          // first time this stop is seen, create it
+          var stopToStore = {
+            name: stop.name
+            , id: stop.id
+            , lines: {}
           }
-          // Store the stop in the general stop list and the line
+          // add the line to this stop
+          stopToStore.lines['line_' + slug(line.id)] = {
+            id: 'line_' + slug(line.id)
+            , name: line.name
+            , url: {
+              p: 49
+              , id: query.id
+              , rd: query.rd
+            }
+          };
+          // Store the stop in the general stop list and the line   
           thisOperator.stops[stopToStore.id] = stopToStore;
-          thisOperator.lines['line_' + slug(line.id)].stops[stopSlug] = stopToStore;
+          thisOperator.lines['line_' + slug(line.id)].stops[stop.id] = stopToStore;
         }
       }
     }
