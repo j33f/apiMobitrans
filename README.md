@@ -3,6 +3,11 @@ apiMobitrans
 
 An API for the mobitrans.fr web service via pages scrapping made with nodeJs licensed under the terms of the GNU GPLv3.
 
+Warning
+-------
+
+This API is, at the moment, must be seen as a «work in progress» or «experimental stage»
+
 Installation
 ------------
 
@@ -69,19 +74,19 @@ A good thing is to use the [Forever](https://github.com/nodejitsu/forever) tool 
 Usage
 -----
 
-The API is a rest API wich serve XML or JSON formatted datas dependng on extension or http header «Accept» (first has precedence). By default (ie without specifying an extension, JSON will be served)
+The API is a rest API wich serve, HTML, XML or JSON formatted datas dependng on extension (first has precedence). By default (ie without specifying an extension, HTML will be served)
 
 * `/scrap/MySecret` : perform the very first scrap, to list lines, stop, junctions for all operators
-* `/viewStorage/MySecret{.json|.xml}` : url to call to have a look to the whole storage
-* `/:operator/getLines{.json|.xml}` : get all infos for all lines [example](http://apimobitrans.modulaweb.fr/tam/getLines.json)
-* `/:operator/getLine/:line{.json|.xml}` : get all infos for a line [example](http://apimobitrans.modulaweb.fr/tam/getLine/line_3.json)
-* `/:operator/getStops{.json|.xml}` : get all infos for all stops [example](http://apimobitrans.modulaweb.fr/tam/getStops.json)
-* `/:operator/getStop/:stop{.json|.xml}` : get all infos for a stop [example](http://apimobitrans.modulaweb.fr/tam/getStop/stop_albert-1er.json)
-* `/:operator/getArrivals/:stop/:line{.json|.xml}` : get the arrivals for a stop on a line [example](http://apimobitrans.modulaweb.fr/tam/getArrivals/stop_albert-1er/line_1.json)
-* `/:operator/getArrivals/:stop{.json|.xml}` : get all the arrivals for a stop from all lines [example](http://apimobitrans.modulaweb.fr/tam/getArrivals/stop_albert-1er.json)
-* `/:operator/getArrivalsAtStop/:stop/forLine/:line{.json|.xml}` : same as above [example](http://apimobitrans.modulaweb.fr/tam/getArrivalsAtStop/stop_albert-1er/forLine/line_1.json)
-* `/:operator/getArrivalsAtLine/:line/forStop/:stop{.json|.xml}` : same as above [example](http://apimobitrans.modulaweb.fr/tam/getArrivalsAtLine/line_1/forStop/stop_albert-1er.json)
-* `/:operator/getArrivalsAtStop/:stop.{.json|.xml}` : get all arrvivals at a stop from all lines [example](http://apimobitrans.modulaweb.fr/tam/getArrivalsAtStop/stop_albert-1er.json)
+* `/viewStorage/MySecret{null|.html|.json|.xml}` : url to call to have a look to the whole storage
+* `/:operator/lines{null|.html|.json|.xml}` : get all infos for all lines [example](http://apimobitrans.modulaweb.fr/tam/lines.json)
+* `/:operator/lines/:line{null|.html|.json|.xml}` : get all infos for a line [example](http://apimobitrans.modulaweb.fr/tam/lines/line_3.json)
+* `/:operator/stops{null|.html|.json|.xml}` : get all infos for all stops [example](http://apimobitrans.modulaweb.fr/tam/stops.json)
+* `/:operator/stops/:stop{null|.html|.json|.xml}` : get all infos for a stop [example](http://apimobitrans.modulaweb.fr/tam/stops/stop_albert-1er.json)
+* `/:operator/arrivals/:stop/:line{null|.html|.json|.xml}` : get the arrivals for a stop on a line [example](http://apimobitrans.modulaweb.fr/tam/arrivals/stop_albert-1er/line_1.json)
+* `/:operator/arrivals/:stop{null|.html|.json|.xml}` : get all the arrivals for a stop from all lines [example](http://apimobitrans.modulaweb.fr/tam/arrivals/stop_albert-1er.json)
+* `/:operator/arrivalsAtStop/:stop/forLine/:line{null|.html|.json|.xml}` : same as above [example](http://apimobitrans.modulaweb.fr/tam/arrivalsAtStop/stop_albert-1er/forLine/line_1.json)
+* `/:operator/arrivalsAtLine/:line/forStop/:stop{null|.html|.json|.xml}` : same as above [example](http://apimobitrans.modulaweb.fr/tam/arrivalsAtLine/line_1/forStop/stop_albert-1er.json)
+* `/:operator/arrivalsAtStop/:stop.{null|.html|.json|.xml}` : get all arrvivals at a stop from all lines [example](http://apimobitrans.modulaweb.fr/tam/arrivalsAtStop/stop_albert-1er.json)
 
 Where : 
 

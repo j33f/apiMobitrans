@@ -1,0 +1,42 @@
+{{#lineName}}
+  <h1>Line «{{lineName}}» from operator «{{operator}}»</h1>
+  <hr>
+  <a class="btn btn-primary btn-xs" href="./lines/{{lineId}}.json">JSON version</a> <a class="btn btn-primary btn-xs" href="./lines/{{lineId}}.xml">XML version</a>
+  {{#data}}
+  {{#line}}
+    <h3>Stops</h3>
+    {{#stops}}
+      <a class="btn btn-default btn-xs" href="../stops/{{id}}.html">{{name}}</a> 
+    {{/stops}}
+  {{/line}}
+  {{/data}}
+{{/lineName}}
+
+{{^lineName}}
+<h1>Lines from operator «{{operator}}»</h1>
+<hr>
+<a class="btn btn-primary btn-xs" href="./lines.json">JSON version</a> <a class="btn btn-primary btn-xs" href="./lines.xml">XML version</a>
+<div class="panel-group" id="accordion">
+{{#data}}
+{{#lines}}
+  <div class="panel">
+    <div class="panel-heading">
+      <h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#{{id}}">Line «{{name}}»</a></h4>
+    </div>
+    <div id="{{id}}" class="panel-collapse collapse">
+      <div class="panel-body">
+        <a class="btn btn-primary btn-xs" href="./lines/{{id}}.html">HTML</a> 
+        <a class="btn btn-primary btn-xs" href="./lines/{{id}}.json">JSON</a> 
+        <a class="btn btn-primary btn-xs" href="./lines/{{id}}.xml">XML</a>
+        <hr>
+        <h5>Stops</h5>
+      {{#stops}}
+        <a class="btn btn-default btn-xs" href="./stops/{{id}}.html">{{name}}</a> 
+      {{/stops}}
+      </div>
+    </div>
+  </div>
+  {{/lines}}
+{{/data}}
+</div>
+{{/lineName}}

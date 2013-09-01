@@ -171,7 +171,6 @@ var getLines = function(req, res) {
 		//cleanup and reformat data
 		var thisLine = JSON.parse(JSON.stringify(req.operator.lines[req.params.line])); // clone object
 		for (var s in thisLine.stops) {
-			console.log(s);
 			for (var l in thisLine.stops[s].lines) {
 				delete thisLine.stops[s].lines[l].url
 			}
@@ -186,7 +185,6 @@ var getLines = function(req, res) {
 		var thoseLines = JSON.parse(JSON.stringify(req.operator.lines)); // clone object
 		for (var i in thoseLines) {
 			for (var s in thoseLines[i].stops) {
-				console.log(s);
 				for (var l in thoseLines[i].stops[s].lines) {
 					delete thoseLines[i].stops[s].lines[l].url
 				}

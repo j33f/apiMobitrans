@@ -65,13 +65,16 @@ app.configure(function(){
       var status = status_ || 200;
       try {
         // TODO : this cause sometime an error «headers already sent» why ? the try catch fixes this…
-        if ((req.accepts('json') && req.params.ext == undefined) || req.params.ext == 'json') {
+        if (req.params.ext == 'json') {
+          // serve json
           res.type('json').jsonp(status,obj);
-        } else if ((req.accepts('application/xml') && req.params.ext == undefined) || req.params.ext == 'xml') {
+        } else if (req.params.ext == 'xml') {
+          // serve xml
           res.header('Content-Type', 'text/xml');
           var xml = easyxml.render(obj);
           res.type('xml').send(status,xml);
-        } else if ( req.params.ext == 'html') {
+        } else if ( req.params.ext == 'html' || req.params.ext == undefined) {
+          // by default serve html
           var content = {
             operator: req.operator.name
             , data: obj
@@ -87,8 +90,6 @@ app.configure(function(){
           var template = Hogan.compile(fs.readFileSync(__dirname + '/views/'+req.verb+'.hjs',{encoding:'utf8'}));
           var html = template.render(content);
           res.render('main', {content: html});
-        } else {
-          res.send(406,'You must set http header «Accepts» to «application/json» or «application/xml» or just put the .json or .xml extension at the end of the URL.');
         }
       } catch (e) {}
     };
@@ -174,17 +175,17 @@ app.get('/scrap/'+settings.secret, scrap.scrap); // url to call to do the initia
 app.get('/viewStorage/'+settings.secret+'.:ext?$', scrap.viewStorage); // url to call to have a look to the whole storage
 
 // Routes for REST API
-app.get('/:operator/getLines.:ext?$', api.getLines); // get all infos for all lines
-app.get('/:operator/getLine/:line.:ext?$', api.getLines); // get all infos for a line
+app.get('/:operator/lines.:ext?$', api.getLines); // get all infos for all lines
+app.get('/:operator/lines/:line.:ext?$', api.getLines); // get all infos for a line
 
-app.get('/:operator/getStops.:ext?$', api.getStops); // get all infos for all stops
-app.get('/:operator/getStop/:stop.:ext?$', api.getStops); // get all infos for a stop
+app.get('/:operator/stops.:ext?$', api.getStops); // get all infos for all stops
+app.get('/:operator/stops/:stop.:ext?$', api.getStops); // get all infos for a stop
 
-app.get('/:operator/getArrivals/:stop/:line.:ext?$', api.getArrivalsForStopLine); // get the arrivals for a stop on a line
-app.get('/:operator/getArrivals/:stop.:ext?$', api.getArrivalsAtStop); // get all the arrivals for a stop from all lines
-app.get('/:operator/getArrivalsAtStop/:stop/forLine/:line.:ext?$', api.getArrivalsForStopLine); // same as above
-app.get('/:operator/getArrivalsAtLine/:line/forStop/:stop.:ext?$', api.getArrivalsForStopLine); // same as above
-app.get('/:operator/getArrivalsAtStop/:stop.:ext?$', api.getArrivalsAtStop); // get all arrvivals at a stop from all lines
+app.get('/:operator/arrivals/:stop/:line.:ext?$', api.getArrivalsForStopLine); // get the arrivals for a stop on a line
+app.get('/:operator/arrivals/:stop.:ext?$', api.getArrivalsAtStop); // get all the arrivals for a stop from all lines
+app.get('/:operator/arrivalsAtStop/:stop/forLine/:line.:ext?$', api.getArrivalsForStopLine); // same as above
+app.get('/:operator/arrivalsAtLine/:line/forStop/:stop.:ext?$', api.getArrivalsForStopLine); // same as above
+app.get('/:operator/arrivalsAtStop/:stop.:ext?$', api.getArrivalsAtStop); // get all arrvivals at a stop from all lines
 
 // Create server
 http.createServer(app).listen(app.get('port'), function(){
